@@ -18,6 +18,7 @@ import Epicas.Epicas;
 import Features.Features;
 import GherkinTests.GherkinTests;
 import ManualTests.ManualTests;
+import Releases.Releases;
 import RunManual.RunsManuals;
 import auxiliars.Credentials;
 import auxiliars.WorkSpaces;
@@ -30,14 +31,13 @@ public class app {
 	private static String _url = "https://almoctane-eur.saas.microfocus.com";
 	private static String _url_sign_in= _url+"/authentication/sign_in";
 	
-	private static String _url_workSpaces = _url+"/api/shared_spaces/278014/workspaces?fields=name";
+	private static String workSpace="";
+	private static String _url_workSpaces = _url+"/api/shared_spaces/%s/workspaces?fields=name";
 	private static String _url_application_modules = _url+"/api/shared_spaces/278014/workspaces/%s/application_modules?fields=client_lock_stamp,creation_time,description,has_children,id,last_modified,name,parent,program,version_stamp&limit=10000";
-	private static String _url_defects = _url+"/api/shared_spaces/278014/workspaces/%s/defects?fields=blocked,closed_on,description,name,id,creation_time,fixed_on&limit=10000";
-	private static String _url_epicas = _url+"/api/shared_spaces/278014/workspaces/%s/epics?fields=name&limit=10000";
-	private static String _url_features = _url+"/api/shared_spaces/278014/workspaces/%s/features?fields=creation_time,description,feature_type,id,last_modified,name,release&limit=10000";
-	private static String _url_gherkinTests = _url+"/api/shared_spaces/278014/workspaces/%s/gherkin_tests?fields=creation_time,description,id,last_modified,last_runs,name,test_type&limit=10000";
-	private static String _url_RunsManuals = _url+"/api/shared_spaces/278014/workspaces/%s/manual_runs?fields=creation_time,description,id,last_modified,name,test,test_name&limit=10000";
-	private static String _url_ManualTests = _url+"/api/shared_spaces/278014/workspaces/%s/manual_tests?fields=creation_time,description,id,last_modified,last_runs,name&limit=10000";
+	private static String _url_defects = _url+"/api/shared_spaces/%s/workspaces/%s/defects?fields=blocked,closed_on,description,name,id,creation_time,fixed_on&limit=10000";
+	private static String _url_epicas = _url+"/api/shared_spaces/%s/workspaces/%s/epics?fields=name&limit=10000";
+	private static String _url_features = _url+"/api/shared_spaces/%s/workspaces/%s/features?fields=creation_time,description,feature_type,id,last_modified,name,release&limit=10000";
+	private static String _url_gherkinTests = _url+"/api/shared_spaces/%s/workspaces/%s/gherkin_tests?fields=creation_time,description,id,last_modified,last_runs,name,test_type&limit=10000";
 
 	private static String _cookie_name = "LWSSO_COOKIE_KEY";
 	
@@ -52,11 +52,14 @@ public class app {
 		      Scanner myReader = new Scanner(myObj);
 		      _clientId = myReader.nextLine();
 		      _clientSecret = myReader.nextLine();
+		      workSpace = myReader.nextLine();
 		      myReader.close();
 		    } catch (FileNotFoundException e) {
-		      System.out.println("No se pudo acceder al fichero \"c:/Octane/APIKey.txt");
+		      System.out.println("No se pudo acceder al fichero c:/Octane/APIKey.txt");
 		      e.printStackTrace();
 		    }
+		
+		_url_workSpaces =  String.format(_url_workSpaces, workSpace);
 		
 		//Realiza la autentificación
 		Response response =
@@ -90,7 +93,7 @@ public class app {
 			      
 			      
 			      //Obtiene los Applications_Modules
-			      String _url_application_modules_new= String.format(_url_application_modules,workSpaces.data.get(i).id);
+			      String _url_application_modules_new= String.format(_url_application_modules,workSpace,workSpaces.data.get(i).id);
 			      
 			      System.out.println(_url_application_modules_new);
 			      
@@ -109,7 +112,7 @@ public class app {
 				  }
 			      
 			      //Obtiene los Defects
-			      String _url_defects_new = String.format(_url_defects,workSpaces.data.get(i).id);
+			      String _url_defects_new = String.format(_url_defects, workSpace, workSpaces.data.get(i).id);
 			      
 			      System.out.println(_url_defects_new);
 			      WebTarget target_defects = client.target(_url_defects_new);
@@ -127,7 +130,7 @@ public class app {
 				  }
 			      
 			     //Obtiene las epicas
-			      String _url_epica_new = String.format(_url_epicas,workSpaces.data.get(i).id);
+			      String _url_epica_new = String.format(_url_epicas, workSpaces, workSpaces.data.get(i).id);
 			      
 			      System.out.println(_url_epica_new);
 			      WebTarget target_epicas = client.target(_url_epica_new);
@@ -145,7 +148,7 @@ public class app {
 				  }
 			      
 			    //Obtiene las features
-			      String _url_features_new = String.format(_url_features,workSpaces.data.get(i).id);
+			      String _url_features_new = String.format(_url_features, workSpaces, workSpaces.data.get(i).id);
 			      
 			      System.out.println(_url_features_new);
 			      WebTarget target_features = client.target(_url_features_new);
@@ -163,7 +166,7 @@ public class app {
 				  }
 			      
 			    //Obtiene las GherkinTests
-			      String _url_GherkinTests_new = String.format(_url_gherkinTests,workSpaces.data.get(i).id);
+			      String _url_GherkinTests_new = String.format(_url_gherkinTests, workSpaces, workSpaces.data.get(i).id);
 			      
 			      System.out.println(_url_GherkinTests_new);
 			      WebTarget target_GherkinTests = client.target(_url_GherkinTests_new);
@@ -180,59 +183,59 @@ public class app {
 			    	  System.out.println("                    GherkinTest: "+features.data.get(ii).name);
 				  }
 			      
-			    //Obtiene las RunsManuals
-			      String _url_RunsManuals_new = String.format(_url_RunsManuals,workSpaces.data.get(i).id);
+//			    //Obtiene las RunsManuals
+//			      String _url_RunsManuals_new = String.format(_url_RunsManuals,workSpaces.data.get(i).id);
+//			      
+//			      System.out.println(_url_RunsManuals_new);
+//			      WebTarget target_RunsManuals = client.target(_url_RunsManuals_new);
+//			      
+//			      RunsManuals runsManuals = target_RunsManuals
+//					        .request(MediaType.APPLICATION_JSON)
+//					        .cookie(cookie)
+//					        .get(RunsManuals.class);
+//					
+//			      System.out.println("                RunsManuals: " + runsManuals.total_count);
+//			      
+//			      for (int ii=0; ii<runsManuals.total_count; ii++) 
+//				  {
+//			    	  System.out.println("                    RunsManuals: "+runsManuals.data.get(ii).name);
+//				  }
 			      
-			      System.out.println(_url_RunsManuals_new);
-			      WebTarget target_RunsManuals = client.target(_url_RunsManuals_new);
-			      
-			      RunsManuals runsManuals = target_RunsManuals
-					        .request(MediaType.APPLICATION_JSON)
-					        .cookie(cookie)
-					        .get(RunsManuals.class);
-					
-			      System.out.println("                RunsManuals: " + runsManuals.total_count);
-			      
-			      for (int ii=0; ii<runsManuals.total_count; ii++) 
-				  {
-			    	  System.out.println("                    RunsManuals: "+runsManuals.data.get(ii).name);
-				  }
-			      
-			    //Obtiene las ManualTests
-			      String _url_ManualTests_new = String.format(_url_ManualTests,workSpaces.data.get(i).id);
-			      
-			      System.out.println(_url_RunsManuals_new);
-			      WebTarget target_ManualTests = client.target(_url_ManualTests_new);
-			      
-			      ManualTests manualTests = target_ManualTests
-					        .request(MediaType.APPLICATION_JSON)
-					        .cookie(cookie)
-					        .get(ManualTests.class);
-					
-			      System.out.println("                ManualTests: " + manualTests.total_count);
-			      
-			      for (int ii=0; ii<manualTests.total_count; ii++) 
-				  {
-			    	  System.out.println("                    ManualTest: "+manualTests.data.get(ii).name);
-				  }
-			      
-			    //Obtiene las ManualTests
-			      String _url_ManualTests_new = String.format(_url_ManualTests,workSpaces.data.get(i).id);
-			      
-			      System.out.println(_url_RunsManuals_new);
-			      WebTarget target_ManualTests = client.target(_url_ManualTests_new);
-			      
-			      ManualTests manualTests = target_ManualTests
-					        .request(MediaType.APPLICATION_JSON)
-					        .cookie(cookie)
-					        .get(ManualTests.class);
-					
-			      System.out.println("                ManualTests: " + manualTests.total_count);
-			      
-			      for (int ii=0; ii<manualTests.total_count; ii++) 
-				  {
-			    	  System.out.println("                    ManualTest: "+manualTests.data.get(ii).name);
-				  }
+//			    //Obtiene las ManualTests
+//			      String _url_ManualTests_new = String.format(_url_ManualTests,workSpaces.data.get(i).id);
+//			      
+//			      System.out.println(_url_RunsManuals_new);
+//			      WebTarget target_ManualTests = client.target(_url_ManualTests_new);
+//			      
+//			      ManualTests manualTests = target_ManualTests
+//					        .request(MediaType.APPLICATION_JSON)
+//					        .cookie(cookie)
+//					        .get(ManualTests.class);
+//					
+//			      System.out.println("                ManualTests: " + manualTests.total_count);
+//			      
+//			      for (int ii=0; ii<manualTests.total_count; ii++) 
+//				  {
+//			    	  System.out.println("                    ManualTest: "+manualTests.data.get(ii).name);
+//				  }
+//			      
+//			    //Obtiene las Releases
+//			      String _url_Releases_new = String.format(_url_ManualTests,workSpaces.data.get(i).id);
+//			      
+//			      System.out.println(_url_Releases_new);
+//			      WebTarget target_Releases = client.target(_url_Releases_new);
+//			      
+//			      Releases releases = target_Releases
+//					        .request(MediaType.APPLICATION_JSON)
+//					        .cookie(cookie)
+//					        .get(Releases.class);
+//					
+//			      System.out.println("                Releases: " + releases.total_count);
+//			      
+//			      for (int ii=0; ii<releases.total_count; ii++) 
+//				  {
+//			    	  System.out.println("                    Releases: "+releases.data.get(ii).name);
+//				  }
 			    
 			}
 		}
